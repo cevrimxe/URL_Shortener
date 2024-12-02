@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>URL Shortener Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .form-group {
+            margin-bottom: 15px;
+            background-color: white;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: none;
+        }
+        .error {
+            color: #dc3545;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        .success {
+            color: #28a745;
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h2>URL Shortener</h2>
+    <div class="form-group">
+        <label for="url">URL to Shorten:</label>
+        <input type="text" id="url" placeholder="https://example.com" required>
+    </div>
+    <div class="form-group">
+        <label for="custom">Custom Short (optional):</label>
+        <input type="text" id="custom" placeholder="custom-name">
+    </div>
+    <div class="form-group">
+        <label for="expiry">Expiry (hours):</label>
+        <input type="number" id="expiry" value="24" min="1" max="168">
+    </div>
+    <button onclick="shortenURL()">Shorten URL</button>
+    <div id="result"></div>
+
+    <script>
+        async function shortenURL() {
+            const url = document.getElementById('url').value;
+            const custom = document.getElementById('custom').value;
+            const expiry = parseInt(document.getElementById('expiry').value);
+            const resultDiv = document.getElementById('result');
+            
+            if (!url) {
+                resultDiv.style.display = 'block';
+                resultDiv.innerHTML = '<div class="error">Please enter a URL</div>';
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:8080/api/v1/shorten', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        url: url,
+                        custom_short: custom,
+                        expiry: expiry
+                    })
+                });
+
+                const data = await response.json();
+                resultDiv.style.display = 'block';
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <h3>Success!</h3>
+                            <p><strong>Original URL:</strong> ${data.url}</p>
+                            <p><strong>Shortened URL:</strong> <a href="${data.custom_short}" target="_blank">${data.custom_short}</a></p>
+                            <p><strong>Expires in:</strong> ${data.expiry} hours</p>
+                            <p><strong>Rate Limit Remaining:</strong> ${data.x_rate_remaining}</p>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `<div class="error"><h3>Error:</h3><p>${data.error}</p></div>`;
+                }
+            } catch (error) {
+                resultDiv.style.display = 'block';
+                resultDiv.innerHTML = `<div class="error"><h3>Error:</h3><p>${error.message}</p></div>`;
+            }
+        }
+    </script>
+</body>
+</html>

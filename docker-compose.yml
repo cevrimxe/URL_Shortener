@@ -1,0 +1,27 @@
+version: "3"
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - DB_ADDR=db:6379
+      - DB_PASS=
+      - DOMAIN=localhost:8080
+      - API_QUOTA=100
+    depends_on:
+      - db
+
+  db:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+
+volumes:
+  redis_data:
