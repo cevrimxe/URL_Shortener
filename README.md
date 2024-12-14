@@ -28,7 +28,7 @@ A URL shortener service built with Go, Redis, and Gin, featuring tagging functio
 
 1. Clone the repository:
    ```bash
-   git clone <repository-url>
+   git clone <https://github.com/cevrimxe/URL_Shortener>
    cd <repository-directory>
    ```
 
@@ -90,9 +90,6 @@ curl -X POST http://localhost:8080/api/v1/shorten \
 }'
 ```
 
-### License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Contributing
 
